@@ -1,8 +1,8 @@
 {
-  "name": "vue-blog-demo",
+  "name": "nir",
   "version": "1.0.0",
-  "description": "A Vue.js blog demo to demonstrate proper decoupling of api data and swapping of resources/providers",
-  "author": "Nicolas Udy <dev@udy.io>",
+  "description": "NIR project",
+  "author": "",
   "private": true,
   "scripts": {
     "dev": "node build/dev-server.js",
@@ -71,8 +71,8 @@
     "webpack-merge": "^4.1.4"
   },
   "engines": {
-    "node": ">= 4.0.0",
-    "npm": ">= 3.0.0"
+    "node": "14.15.1",
+    "npm": "6.14.8"
   },
   "browserslist": [
     "last 2 versions",
