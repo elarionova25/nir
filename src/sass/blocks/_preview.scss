@@ -70,8 +70,12 @@
     height: 100%;
     padding: .75rem;
     color: cc(txt, inv);
-    background-color: cc(shadow, 0);
+    background-color: cc(shadow, .4);
     transition: background-color 225ms cb();
+
+    .preview__figure--mobile{
+      opacity: 1;
+    }
 
     .preview__figure--mobile &,
     &:hover {
