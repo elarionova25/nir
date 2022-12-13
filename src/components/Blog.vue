@@ -1,5 +1,10 @@
 <template>
   <main class="blog" :class="{ 'blog--reading': this.post }">
+    <Modal
+      v-show="isModalVisible"
+      @close="closeModal"
+      @continue="continueModal"
+    />
     <blog-nav :content="content" :filters="filters" :navs="navs"/>
     <blog-feed :filters="filters"/>
     <blog-post :post="post"/>
@@ -12,10 +17,11 @@ import BlogNav from './BlogNav'
 import BlogFeed from './BlogFeed'
 import BlogPost from './BlogPost'
 import BlogFooter from './BlogFooter'
+import Modal from './Modal';
 
 export default {
   name: 'blog',
-  components: { BlogNav, BlogFeed, BlogPost, BlogFooter },
+  components: { BlogNav, BlogFeed, BlogPost, BlogFooter, Modal },
   resource: 'Blog',
   props: {
     post: String,
@@ -29,7 +35,8 @@ export default {
       labels: {
         post: '',
         author: ''
-      }
+      },
+      isModalVisible: true
     }
   },
 
@@ -50,6 +57,21 @@ export default {
   watch: {
     '$route.name' (to, from) {
       if (to !== from) this.navs++
+    }
+  },
+
+  methods: {
+    showModal() {
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
+    continueModal() {
+      this.isModalVisible = false;
+      setTimeout(() => {
+        this.isModalVisible = true;
+      }, 200);
     }
   },
 
