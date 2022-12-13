@@ -5,7 +5,6 @@
       @close="closeModal"
       @continue="continueModal"
     />
-
     <blog-nav :content="content" :filters="filters" :navs="navs"/>
     <blog-feed :filters="filters"/>
     <blog-post :post="post"/>
