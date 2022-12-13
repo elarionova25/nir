@@ -1,44 +1,10 @@
 <template>
   <main class="blog" :class="{ 'blog--reading': this.post }">
-    <a href="#modal1">Добавить</a>
-    <a href="#modal2">дщд</a>
-    <a href="#modal3">lol</a>
-    <button @click="$router.push('#modal3')">lol</button>
-
-  <div v-show="showFirst">
-    <div id="modal1" ref="my-modal" class="modal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title"> {{showFirst}} Helllooooo1</h3>
-            <a href="#close" title="Close" class="close">×</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-    <div id="modal2" class="modal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title"> Helllooooo2</h3>
-            <a href="#close" title="Close" class="close">×</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div id="modal3" class="modal">
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h3 class="modal-title"> Helllooooo3</h3>
-            <a href="#close" title="Close" class="close">×</a>
-          </div>
-        </div>
-      </div>
-    </div>
+    <Modal
+      v-show="isModalVisible"
+      @close="closeModal"
+      @continue="continueModal"
+    />
 
     <blog-nav :content="content" :filters="filters" :navs="navs"/>
     <blog-feed :filters="filters"/>
@@ -71,7 +37,7 @@ export default {
         post: '',
         author: ''
       },
-      showFirst: true
+      isModalVisible: true
     }
   },
 
@@ -92,6 +58,21 @@ export default {
   watch: {
     '$route.name' (to, from) {
       if (to !== from) this.navs++
+    }
+  },
+
+  methods: {
+    showModal() {
+      this.isModalVisible = true;
+    },
+    closeModal() {
+      this.isModalVisible = false;
+    },
+    continueModal() {
+      this.isModalVisible = false;
+      setTimeout(() => {
+        this.isModalVisible = true;
+      }, 200);
     }
   },
 
