@@ -18,17 +18,20 @@
             x
           </button>
         </header>
-        <footer class="modal-footer">
+
+
+        <footer class="modal-footer" v-if="counter > 4 || counter < 4">
           <button
-            v-if="counter > 4 || counter < 4"
             type="button"
             class="btn-green"
             @click="more"
           >
             Продолжить
           </button>
+        </footer>
+
+        <footer class="modal-footer" v-if="counter === 4">
           <button
-            v-if="counter === 4"
             type="button"
             class="btn-green"
             @click="more"
