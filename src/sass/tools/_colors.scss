@@ -1,8 +1,9 @@
 // colors
-$ghost-white: #fcfdff;
+$ghost-white: #57027c;
 $mystic: #dae4eb;
-$gunmetal: #2a3744;
-$smoky-black: #0a0908;
+$gunmetal: #754e33;
+$smoky-black: #655900;
+$contrast: #B2B900;
 
 // cc map
 $colors:(
@@ -13,7 +14,8 @@ $colors:(
     border: $mystic,
     shadow: $smoky-black,
     overlay: $gunmetal,
-    selection: rgba($gunmetal, .33)
+    selection: rgba($gunmetal, .33),
+    contrast: $contrast
   ),
 
   alt:(
