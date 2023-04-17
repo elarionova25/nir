@@ -1,6 +1,10 @@
 <template>
   <transition name="post">
     <article v-if="allReady" class="post">
+      <b-button variant="link" :to="{path: '/', name: 'feed'}">
+        <b-icon-caret-left style="color: #754e33"/>
+        <span style="color: #754e33">Назад</span>
+      </b-button>
       <header class="post__header">
         <h2 class="post__title">{{ title }}</h2>
 
@@ -15,17 +19,17 @@
 
       <section class="post__body rte" v-html="content"></section>
 
-<!--      <footer class="post__footer">-->
-<!--        <vue-disqus v-if="commentsReady" shortname="vue-blog-demo"-->
-<!--          :key="post" :identifier="post" :url="`https://vue-blog-demo.netlify.com/read/${post}`"/>-->
-<!--      </footer>-->
+      <footer class="post__footer">
+        <vue-disqus v-if="commentsReady" shortname="nir-simple"
+          :key="post" :identifier="post" :url="`https://nir-project-simple.onrender.com/read/${post}`"/>
+      </footer>
     </article>
   </transition>
 </template>
 
 <script>
 import VueDisqus from 'vue-disqus/VueDisqus'
-import { kebabify, prettyDate } from '../helpers'
+import { kebabify, prettyDate } from '../../helpers'
 
 export default {
   name: 'blog-post',
@@ -47,7 +51,6 @@ export default {
 
   computed: {
     allReady() {
-      console.log(this.post)
       return this.ready && this.post;
     }
   },

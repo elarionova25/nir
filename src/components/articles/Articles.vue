@@ -1,27 +1,29 @@
 <template>
   <main class="blog" :class="{ 'blog--reading': this.post }">
+    <blog-nav :content="content" :filters="filters" :navs="navs" :query="query"/>
+    <blog-feed :filters="filters" :query="query"/>
+    <blog-post :post="post"/>
+    <blog-footer/>
+
     <Modal
-      v-show="isModalVisible"
+      v-if="isModalVisible"
+      :counter="counter"
       @close="closeModal"
       @continue="continueModal"
     />
-    <blog-nav :content="content" :filters="filters" :navs="navs"/>
-    <blog-feed :filters="filters"/>
-    <blog-post :post="post"/>
-    <blog-footer/>
   </main>
 </template>
 
 <script>
-import BlogNav from './BlogNav'
-import BlogFeed from './BlogFeed'
-import BlogPost from './BlogPost'
-import BlogFooter from './BlogFooter'
-import Modal from './Modal';
+import BlogNav from '../Nav.vue'
+import BlogFeed from './ArticlesFeed.vue'
+import BlogPost from './ArticlesPost.vue'
+import BlogFooter from './ArticlesFooter.vue'
+import Modal from '../Modal.vue';
 
 export default {
   name: 'blog',
-  components: { BlogNav, BlogFeed, BlogPost, BlogFooter, Modal },
+  components: {Modal, BlogNav, BlogFeed, BlogPost, BlogFooter},
   resource: 'Blog',
   props: {
     post: String,
@@ -36,13 +38,17 @@ export default {
         post: '',
         author: ''
       },
-      isModalVisible: true
+      query: {
+        search: ''
+      },
+      isModalVisible: true,
+      counter: 0
     }
   },
 
   computed: {
     content() {
-      return { title: this.title, labels: this.labels }
+      return {title: this.title, labels: this.labels}
     },
     filters() {
       let filters = {}
@@ -55,7 +61,7 @@ export default {
   },
 
   watch: {
-    '$route.name' (to, from) {
+    '$route.name'(to, from) {
       if (to !== from) this.navs++
     }
   },
@@ -68,6 +74,7 @@ export default {
       this.isModalVisible = false;
     },
     continueModal() {
+      this.counter++;
       this.isModalVisible = false;
       setTimeout(() => {
         this.isModalVisible = true;

@@ -21,23 +21,23 @@
 
 
         <footer class="modal-footer" v-if="counter > 4 || counter < 4">
-          <button
-            type="button"
-            class="btn-green"
+          <b-button
+            variant="primary"
+            size="sm"
             @click="more"
           >
             Продолжить
-          </button>
+          </b-button>
         </footer>
 
         <footer class="modal-footer" v-if="counter === 4">
-          <button
-            type="button"
-            class="btn-green"
+          <b-button
+            variant="primary"
+            size="sm"
             @click="more"
           >
             Отправить
-          </button>
+          </b-button>
         </footer>
       </div>
     </div>
@@ -47,17 +47,17 @@
 <script>
 export default {
   name: 'Modal',
-  data() {
-    return {
-      counter: 0
+  props: {
+    counter: {
+      type: Number,
+      default: 0
     }
   },
   methods: {
     more() {
-      if (this.counter === 4) {
+      if (this.counter === 5) {
         this.$emit('close');
       } else {
-        this.counter++;
         this.$emit('continue')
       }
     },
