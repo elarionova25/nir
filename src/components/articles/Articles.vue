@@ -4,12 +4,10 @@
     <blog-feed :filters="filters" :query="query"/>
     <blog-post :post="post"/>
     <blog-footer/>
-
-    <Modal
-      v-if="isModalVisible"
-      :counter="counter"
-      @close="closeModal"
-      @continue="continueModal"
+    <user-add-modal
+      :isShow="isShowUserAddModal"
+      :is-modified="isModified"
+      @on-close="isShowUserAddModal = false"
     />
   </main>
 </template>
@@ -19,11 +17,11 @@ import BlogNav from '../Nav.vue'
 import BlogFeed from './ArticlesFeed.vue'
 import BlogPost from './ArticlesPost.vue'
 import BlogFooter from './ArticlesFooter.vue'
-import Modal from '../Modal.vue';
+import UserAddModal from './UserAddModal.vue';
 
 export default {
   name: 'blog',
-  components: {Modal, BlogNav, BlogFeed, BlogPost, BlogFooter},
+  components: { UserAddModal, BlogNav, BlogFeed, BlogPost, BlogFooter },
   resource: 'Blog',
   props: {
     post: String,
@@ -32,6 +30,8 @@ export default {
 
   data() {
     return {
+      isShowUserAddModal: false,
+      isModified: false,
       navs: 0,
       title: '',
       labels: {
@@ -40,15 +40,13 @@ export default {
       },
       query: {
         search: ''
-      },
-      isModalVisible: true,
-      counter: 0
+      }
     }
   },
 
   computed: {
     content() {
-      return {title: this.title, labels: this.labels}
+      return { title: this.title, labels: this.labels }
     },
     filters() {
       let filters = {}
@@ -61,28 +59,21 @@ export default {
   },
 
   watch: {
-    '$route.name'(to, from) {
+    '$route.name' (to, from) {
       if (to !== from) this.navs++
     }
   },
 
   methods: {
-    showModal() {
-      this.isModalVisible = true;
-    },
-    closeModal() {
-      this.isModalVisible = false;
-    },
-    continueModal() {
-      this.counter++;
-      this.isModalVisible = false;
-      setTimeout(() => {
-        this.isModalVisible = true;
-      }, 200);
+    isLoggedIn() {
+      if (localStorage.getItem('user_id') === null) {
+        this.isShowUserAddModal = true;
+      }
     }
   },
 
   mounted() {
+    this.isLoggedIn();
     this.$getResource('blog')
       .then(x => {
         // use pace hook to know when rendering is ready

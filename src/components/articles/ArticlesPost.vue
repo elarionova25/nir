@@ -1,57 +1,77 @@
 <template>
-  <transition name="post">
-    <article v-if="allReady" class="post">
-      <b-button variant="link" :to="{path: '/', name: 'feed'}">
-        <b-icon-caret-left style="color: #754e33"/>
-        <span style="color: #754e33">Назад</span>
-      </b-button>
-      <header class="post__header">
-        <h2 class="post__title">{{ title }}</h2>
+  <div>
+    <transition name="post">
+      <article v-if="allReady" class="post">
+        <b-button
+          variant="link"
+          size="sm"
+          :to="{path: '/', name: 'feed'}"
+          style="color: black">
+          <b-icon-caret-left/>
+          Назад
+        </b-button>
+        <header class="post__header">
+          <h2 class="post__title">{{ currentPost.title }}</h2>
 
-        <h3 class="post__meta">Автор <router-link class="post__author"
-          :to="`/by/${kebabify(author)}`">{{ author }}</router-link>
-          <span class="post__sep"></span>
-          <time>{{ prettyDate(published) }}</time>
-        </h3>
+          <h3 class="post__meta">Автор <router-link class="post__author"
+                                                    :to="`/by/${kebabify(currentPost.author)}`">{{ currentPost.author }}</router-link>
+            <span class="post__sep"></span>
+            <time>{{ prettyDate(currentPost.published) }}</time>
+          </h3>
 
-        <blockquote class="post__subtitle">{{ description }}</blockquote>
-      </header>
-
-      <section class="post__body rte" v-html="content"></section>
-
-      <footer class="post__footer">
-        <vue-disqus v-if="commentsReady" shortname="nir-simple"
-          :key="post" :identifier="post" :url="`https://nir-project-simple.onrender.com/read/${post}`"/>
-      </footer>
-    </article>
-  </transition>
+          <blockquote class="post__subtitle">Информационная безопасность</blockquote>
+        </header>
+        <div>
+          <b-alert variant="warning" :show="question.text !== ''">
+          <p class="mb-1 font-weight-bold h5">
+            <b>Внимание!</b>
+          </p>
+            <br>
+            <span>
+            После закрытия статьи, Вам будет задан вопрос. Пожалуйста, ознакомьтесь с текстом ниже.
+          </span>
+          </b-alert>
+        </div>
+        <section class="post__body rte" v-html="content"></section>
+      </article>
+    </transition>
+    <QuestionsModal
+      :is-show="isShowQuestionModal"
+      :question="question"
+      @on-close="isShowQuestionModal = false"
+    />
+  </div>
 </template>
 
 <script>
-import VueDisqus from 'vue-disqus/VueDisqus'
 import { kebabify, prettyDate } from '../../helpers'
+import QuestionsModal from '../QuestionsModal.vue';
+import {supabase} from '../../lib/supabaseClient';
 
 export default {
   name: 'blog-post',
   resource: 'BlogPost',
-  components: { VueDisqus },
+  components: { QuestionsModal },
   props: { post: String },
 
   data() {
     return {
-      title: '',
-      author: '',
+      currentPost: {},
+      question: {
+        text: '',
+        correctAnswer: null,
+        options: {}
+      },
       content: '',
-      published: '',
-      description: '',
-      commentsReady: false,
-      ready: false
+      ready: false,
+      results: [],
+      isShowQuestionModal: false
     }
   },
 
   computed: {
     allReady() {
-      return this.ready && this.post;
+      return this.ready && this.question && this.post;
     }
   },
 
@@ -59,28 +79,101 @@ export default {
     post(to, from) {
       if (to === from || !this.post) return;
 
-      this.commentsReady = false
-      this.$getResource('post', to)
-        .then(this.showComments)
-        .then(() => {
-          this.ready = true;
-        });
+      this.fetchData(to);
+    },
+    '$route' (to, from) {
+      if (this.results.length === 0 && to.name === 'feed') {
+        this.showModal();
+      }
     }
   },
 
   methods: {
     kebabify,
     prettyDate,
-    showComments() {
-      // This is injected by prerender-spa-plugin on build time, we don't prerender disqus comments.
-      if (window.__PRERENDER_INJECTED &&
-          window.__PRERENDER_INJECTED.prerendered) {
-        return;
+    showModal() {
+      this.isShowQuestionModal = true;
+    },
+    async getPosts (to) {
+      try {
+        await supabase.from('posts')
+          .select('*')
+          .eq('id', to)
+          .then((post) => {
+            this.currentPost = post.data[0];
+          });
+      } catch (e) {
+        console.log(e)
       }
+    },
 
-      setTimeout(() => {
-        this.commentsReady = true
-      }, 1000)
+    async getQuestions () {
+      try {
+        await supabase.from('questions')
+          .select('*')
+          .eq('id', this.currentPost.question_id)
+          .then((question) => {
+            this.question.id = question.data[0].id;
+            this.question.text = question.data[0].text;
+            this.question.correctAnswer = question.data[0].correct_answer;
+          });
+      } catch (e) {
+        console.log(e)
+      }
+    },
+
+    async getAnswers () {
+      try {
+        await supabase.from('answers')
+          .select('*')
+          .eq('question_id', this.currentPost.question_id)
+          .then((answers) => {
+            this.question.options = answers.data.map((item) => {
+              return {
+                value: item.id,
+                text: item.option
+              }
+            });
+          });
+      } catch (e) {
+        console.log(e)
+      }
+    },
+
+    async getAnsweredQuestions (userId) {
+      try {
+        await supabase.from('answered_questions')
+          .select('*')
+          .eq('question_id', this.currentPost.question_id)
+          .eq('user_id', userId)
+          .then((response) => {
+            this.results = response.data;
+            this.ready = true;
+          })
+      } catch (e) {
+        console.log(e)
+      }
+    },
+
+    async fetchData(to) {
+      await this.getPosts(to).catch((e) => {
+        console.log(e)
+      })
+      this.content = '<p>' + this.currentPost.content.split('\n\n').join('</p><p>') + '</p>';
+
+      await this.getQuestions().catch((e) => {
+        console.log(e)
+      })
+
+      await this.getAnswers().catch((e) => {
+        console.log(e)
+      })
+
+      let userId = localStorage.getItem('user_id');
+
+      await this.getAnsweredQuestions(userId).catch((e) => {
+        console.log(e)
+      });
     }
   },
 
@@ -90,11 +183,7 @@ export default {
       return;
     }
 
-    this.$getResource('post', this.post)
-      .then(this.showComments)
-      .then(() => {
-        this.ready = true;
-      });
+    this.fetchData(this.post);
   }
 }
 </script>

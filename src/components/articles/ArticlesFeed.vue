@@ -32,11 +32,10 @@
 
 <script>
 import { scrollTo, kebabify, prettyDate } from '../../helpers'
-import Modal from '../Modal.vue';
+import {supabase} from '../../lib/supabaseClient';
 
 export default {
   name: 'blog-feed',
-  components: {Modal},
   resource: 'BlogFeed',
 
   props: {
@@ -49,12 +48,15 @@ export default {
       default: {}
     }
   },
-
   data() {
     return {
       posts: [],
       transition: 'preview-appear'
     }
+  },
+
+  mounted() {
+    this.fetchData()
   },
 
   computed: {
@@ -108,19 +110,28 @@ export default {
       }
 
       interval = setInterval(stack, 125)
-    }
-  },
+    },
 
-  mounted() {
-    this.$getResource('feed')
-      .then(posts => {
-        if (!Object.keys(this.filters).length) {
-          this.stackPosts(posts)
-        } else {
-          this.posts = posts
-          this.transition = 'preview'
-        }
-      })
+    async fetchData() {
+      let data = null;
+      try {
+        await supabase.from('posts')
+          .select('*')
+          .order('id')
+          .then((response) => {
+            data = response.data;
+          })
+        ;
+      } catch (e) {
+        console.log(e)
+      }
+      if (!Object.keys(this.filters).length) {
+        this.stackPosts(data)
+      } else {
+        this.posts = data;
+        this.transition = 'preview'
+      }
+    }
   }
 }
 </script>
