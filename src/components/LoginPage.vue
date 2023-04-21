@@ -35,7 +35,7 @@ export default {
   name: 'LoginPage',
   data: () => ({
     userFio: '',
-    isModified: false
+    isModified: true
   }),
   computed: {
     disabled() {
