@@ -35,7 +35,7 @@
           v-if="counter === 6"
           class="m-2"
           variant="success"
-          @click="close"
+          @click="finalClose"
         >
           ОК
         </b-button>
@@ -52,6 +52,8 @@
 </template>
 
 <script>
+
+import {supabase} from '../lib/supabaseClient';
 
 export default {
   name: 'Modal',
@@ -77,6 +79,14 @@ export default {
           this.isShow = true;
         }, 100);
       }
+    },
+    async finalClose() {
+      let update = {
+        id: localStorage.getItem('user_id'),
+        is_clicked_ok: true
+      }
+      await supabase.from('users')
+        .upsert(update)
     },
     close() {
       this.$emit('close');
