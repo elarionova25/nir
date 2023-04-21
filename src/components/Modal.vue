@@ -37,7 +37,7 @@
           variant="success"
           @click="close"
         >
-          ОК
+          Ок
         </b-button>
         <b-button
           variant="secondary"
