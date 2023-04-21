@@ -82,7 +82,7 @@ export default {
       this.fetchData(to);
     },
     '$route' (to, from) {
-      if (this.results.length === 0 && to.name === 'feed') {
+      if (this.results.length === 0 && this.question.text !== '' && to.name === 'feed') {
         this.showModal();
       }
     }
