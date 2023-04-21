@@ -86,7 +86,8 @@ export default {
         is_clicked_ok: true
       }
       await supabase.from('users')
-        .upsert(update)
+        .upsert(update);
+      this.close();
     },
     close() {
       this.$emit('close');
